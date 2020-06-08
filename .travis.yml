@@ -1,0 +1,69 @@
+language: cpp
+script: make unit
+dist: trusty
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+env:
+  global:
+    - CIBW_BUILD='cp37-* cp27-*'
+    - CIBW_TEST_REQUIRES='pytest'
+    - CIBW_BEFORE_BUILD='pip install "numpy>=1.16" && pip install "pandas>=0.24" && pip install "pytest>=4.3" && pip install "cmake==3.13.3" && pip install "pybind11>=2.4"'
+    - CIBW_TEST_COMMAND='python -m pytest {project}/tests'
+
+
+matrix:
+  include:
+
+    - os: linux
+      if: tag != master-builds
+      dist: bionic
+      name: GCC 9
+      python: 3.7
+
+      addons:
+        apt:
+          sources:
+            - sourceline: 'ppa:ubuntu-toolchain-r/test'
+            - sourceline: 'ppa:deadsnakes/ppa'
+          packages:
+            - g++-9 python3.7
+      env:
+        - MATRIX_EVAL="CC=gcc-9 && CXX=g++-9"
+
+      install:
+        - eval "${MATRIX_EVAL}"
+
+      script:
+        - mkdir -p src/amalgamation/ build/release/src/
+        - touch src/amalgamation/duckdb.cpp src/amalgamation/duckdb.hpp build/release/src/libduckdb.so src/amalgamation/duckdb.hpp build/release/duckdb_cli
+
+      before_deploy:
+        - zip -j libduckdb-src.zip src/amalgamation/duckdb.cpp src/amalgamation/duckdb.hpp
+        - zip -j libduckdb-linux-amd64.zip build/release/src/libduckdb.so src/amalgamation/duckdb.hpp
+        - zip -j duckdb_cli-linux-amd64.zip build/release/duckdb_cli
+
+      deploy:
+        provider: releases
+        on:
+          branch: libduckdbpackaging # TODO
+        tag_name: master-builds
+
+        api_key:
+          secure: J0vWrGxHDNlIjytVFLpU+Q/OPt3Nj5gB0y6vavDLs9kM6j98TrmsPn6jVIYAMqSyEk0SqphYzO/jd/CzxJnORC16/UGzhoZoqQXQsAoAiz+lyxT3lnyJ2ltS9Bjw/gFkLjhO/kLtSaOFqJSfgoNHshvdq3k5GqagDjXSyHKLG9Xvua195aoAaXsxIP/QJVQIJ6lZpYzwHLQtKBgAuoe9VTSxOH7d75xvG6SOgGZOHHKD7hP1tYczZnd6XdPZz/rczTLt1x9XN134FKLoXm0xE6Up60zmF+g4r4uOKvH/b7+gbD9U09zK1HpIdqwZGvoJvCWZeoVxCPNZLYC68BcnvOfQSi6dbh0jCLc54YpvKVcnQEeB/uwb4tBH5m19y94MHoZ7W+I/ykY5F2v1akVla2m3E4Ph8D29RU2TSFSNMGgaU8Tq+aogVtWOiaFyoveJZU8Um0OeoJ6hg1algAEICJEtIfSaBBhgNBZdbSeSzOgungeqPJnJT67N2MR0x/4CgVcNpJOZmDoratlG/cop/uhNhop2U7jI4B6UE1KsxC5hKfVZHqWtVcVu1A5aoEwqFw1yVA5hAPhmbn5tyshEXfKjxwtCY5homIcKCezPaXJPpOGbaUA/jz0ZkOt09TNoMvpvmlc0tC5XD2cnDQbQFsFOFwa9+jAfWuvSk7BV2GI=
+
+        file:
+          - libduckdb-src.zip
+          - libduckdb-linux-amd64.zip
+          - duckdb_cli-linux-amd64.zip
+
+        skip_cleanup: true
+
+        # - provider: releases
+        #   on:
+        #     tags: true
+
+        # - 
+
+
