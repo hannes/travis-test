@@ -22,15 +22,12 @@ matrix:
       name: GCC 9
       python: 3.7
 
-     
-      install:
-        - eval "${MATRIX_EVAL}"
-
       script:
         - mkdir -p src/amalgamation/ build/release/src/  build/release/tools/jdbc
-        - touch src/amalgamation/duckdb.cpp src/amalgamation/duckdb.hpp build/release/src/libduckdb.so src/amalgamation/duckdb.hpp build/release/duckdb_cli build/release/tools/jdbc/duckdb_jdbc.jar
+        - touch src/amalgamation/duckdb.cpp src/amalgamation/duckdb.hpp build/release/src/libduckdb.so src/amalgamation/duckdb.hpp build/release/duckdb_cli
+        # deployment
         - zip -j libduckdb-src.zip src/amalgamation/duckdb.cpp src/amalgamation/duckdb.hpp
         - zip -j libduckdb-linux-amd64.zip build/release/src/libduckdb.so src/amalgamation/duckdb.hpp
         - zip -j duckdb_cli-linux-amd64.zip build/release/duckdb_cli
-        - python3 scripts/asset-upload.py libduckdb-linux-amd64.zip duckdb_cli-linux-amd64.zip duckdb_jdbc-linux-amd64.jar=build/release/tools/jdbc/duckdb_jdbc.jar
-
+       
+        - python3 scripts/asset-upload.py libduckdb-linux-amd64.zip duckdb_cli-linux-amd64.zip
