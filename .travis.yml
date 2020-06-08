@@ -36,7 +36,7 @@ matrix:
         - eval "${MATRIX_EVAL}"
 
       script:
-        - mkdir -p src/amalgamation/ build/release/src/
+        - mkdir -p src/amalgamation/ build/release/src/ 
         - touch src/amalgamation/duckdb.cpp src/amalgamation/duckdb.hpp build/release/src/libduckdb.so src/amalgamation/duckdb.hpp build/release/duckdb_cli
 
       before_deploy:
