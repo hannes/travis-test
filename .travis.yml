@@ -38,7 +38,7 @@ matrix:
       deploy:
         provider: releases
         on:
-          branch: master # TODO
+          branch: master
         tag_name: master-builds
 
         api_key:
@@ -50,6 +50,7 @@ matrix:
           - duckdb_cli-linux-amd64.zip
 
         skip_cleanup: true
+        overwrite: true
 
         # - provider: releases
         #   on:
